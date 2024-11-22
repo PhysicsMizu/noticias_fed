@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FED News Widget</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    #news-container {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+    .news-item {
+      margin-bottom: 15px;
+    }
+    .news-item a {
+      text-decoration: none;
+      color: #1a73e8;
+    }
+    .news-item a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>FED News Widget</h1>
+  <div id="news-container">Loading news...</div>
+
+  <script>
+    const rssFeedUrl = "https://news.google.com/rss/search?q=federal+reserve+source:reuters&hl=en-US&gl=US&ceid=US:en
+";
+
+    async function fetchRSSFeed(url) {
+      try {
+        const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
+        const data = await response.json();
+        const newsContainer = document.getElementById("news-container");
+
+        if (data.items) {
+          newsContainer.innerHTML = data.items
+            .slice(0, 5) // Limit to the 5 latest articles
+            .map(item => `
+              <div class="news-item">
+                <a href="${item.link}" target="_blank">${item.title}</a>
+                <p>${item.pubDate.split(" ")[0]}</p>
+              </div>
+            `)
+            .join("");
+        } else {
+          newsContainer.innerHTML = "No news found.";
+        }
+      } catch (error) {
+        console.error("Error fetching RSS feed:", error);
+        document.getElementById("news-container").innerHTML = "Failed to load news.";
+      }
+    }
+
+    fetchRSSFeed(rssFeedUrl);
+  </script>
+</body>
+</html>
